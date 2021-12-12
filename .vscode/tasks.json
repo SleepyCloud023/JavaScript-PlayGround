@@ -1,0 +1,20 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            // 어떤 task인지 설명을 달아놓은것
+            "label": "parcel webapp",
+            // command 속성에서 실행할 어플리케이션의 종류
+            // parcel.js는 터미널에서 실행하므로 shell으로 지정
+            "type": "shell",
+            // 작업(task.json이 정의하는)이 수행할 command, 명령어 
+            // parcel을 이용하여 번들링 실행
+            "command": "parcel index.html",
+            // vscode에서 백그라운드로 command 진행
+            // 이 경우에는 번들링 프로세스를 백그라운드로 진행
+            "isBackground": true,
+        }
+    ]
+}
