@@ -61,5 +61,15 @@ console.log(typeof entries, entries);
 // why?
 console.log(myEntries == entries);
 
+const stringSource = JSON.stringify(entries);
+const stringTarget = JSON.stringify(myEntries);
+
+console.log(stringSource);
+console.log(stringTarget);
+console.log(typeof stringTarget);
+
+console.log(stringSource === stringTarget);
+
+
 // Lodash 라이브러리를 알아보자
 // 라이브러리를 사용하기 전에 Deep Equals 코드를 작성해보고 라이브러리 내부 코드 살펴보기
