@@ -22,7 +22,7 @@ console.log(jsonEqual(sourceObject, targetObject));
 // 2) Always correct: lodash library
 console.log(isEqual(sourceObject, targetObject));
 
-// 3) Always correct: recursive implementation
+// 3) Sometimes incorrect for unsupported types: recursive implementation
 function deepEqual(src, dst) {
     const isObject = (props) => (typeof props == "object" && props != null);
     // If src is object and dst is non-object, this condition returns true

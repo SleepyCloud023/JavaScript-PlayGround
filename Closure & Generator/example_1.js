@@ -8,7 +8,7 @@ function closure_foo(){
             energy++;
         }
         return energy;
-    }; 
+    };
 }
 
 function* generator_foo(){
@@ -26,16 +26,16 @@ function* generator_foo(){
     }
 }
 
-// const energy_accumulator_1 = closure_foo();
-
-// for (let i = 0; i < 5; i++) {
-//     console.log(energy_accumulator_1());
-// }
-// console.log(energy_accumulator_1(5));
-
-const energy_accumulator_2 = generator_foo();
+const energy_accumulator_1 = closure_foo();
 
 for (let i = 0; i < 5; i++) {
-    console.log(energy_accumulator_2.next());
+    console.log(energy_accumulator_1());
 }
-console.log(energy_accumulator_2.next(5));
+console.log(energy_accumulator_1(5));
+
+// const energy_accumulator_2 = generator_foo();
+
+// for (let i = 0; i < 5; i++) {
+//     console.log(energy_accumulator_2.next());
+// }
+// console.log(energy_accumulator_2.next(5));

@@ -29,9 +29,9 @@ function analyzeTemplate(strings, ...fns) {
 }
 
 const result = analyzeTemplate`
-first segment is ${first}
-second segment is ${second}
-third segment is ${third}
+background-color: ${bgColor}
+color: ${color}
+font-size: ${fontSize}
 `;
 
 console.log(result.strings);
