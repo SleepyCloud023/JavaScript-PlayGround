@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "pwa-chrome",
+            "request": "launch",
+            "name": "Debug App",
+            // task.json에서 기술한 label 속성의 값으로 적어서
+            // 해당 task가 실행된 후 진행됨
+            // preLaunchTask 옵션으로 해당 작업을 진행하면 경고 메시지가 뜬다.
+            // 해당 작업을 추적할수 없다는 메시지는 무시해도 괜찮다.
+            // 깃허브에 해당 메시지 관련 설정들이 마구 있는데 굳이 적용하지는 않아도 될 것으로 보인다.
+            "preLaunchTask": "parcel webapp",
+            "url": "http://localhost:1234",
+            // 번들링 완료된 소스파일이 dist에 생성된다. 
+            "webRoot": "${workspaceFolder}/dist"
+        }
+    ]
+}

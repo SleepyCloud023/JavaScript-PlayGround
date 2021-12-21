@@ -288,7 +288,7 @@ exports.nextTick = nextTick;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-var template = "\n  <div id=\"field-{{id}}\" class=\"mt-4\">\n    <div class=\"flex items-start mb-1\">\n      <span class=\"flex items-center\">\n        <svg\n          class=\"flex-shrink-0 h-5 w-5 {{#if valid}}{{#if updated}}text-green-500{{else}}text-gray-200{{/if}}{{else}}text-gray-200{{/if}}\"\n          viewBox=\"0 0 20 20\" fill=\"currentColor\">\n          <path fill-rule=\"evenodd\"\n            d=\"M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z\"\n            clip-rule=\"evenodd\" />\n        </svg>\n      </span>\n      <label class=\"block text-sm\" for=\"name\">{{label}}</label>\n    </div>\n    <input id=\"{{id}}\" name=\"{{id}}\" type=\"{{type}}\" value=\"{{text}}\" {{#if require}}required{{/if}}\n      placeholder=\"{{placeholder}}\" aria-label=\"Name\"\n      class=\"w-full px-5 py-1 text-gray-700 {{#if valid}}bg-gray-200{{else}}bg-red-200{{/if}} rounded\">\n    {{#unless valid}}\n    <div class=\"flex items-start mb-1\">\n      <label class=\"block text-sm text-red-300\" for=\"cus_email\">{{validateMessage}}</label>\n    </div>\n    {{/unless}}\n  </div>\n";
+var template = "\n<div id=\"field-{{id}}\" class=\"mt-4\">\n  <div class=\"flex items-start mb-1\">\n    <span class=\"flex items-center\">\n      <svg\n        class=\"flex-shrink-0 h-5 w-5 {{#if valid}}{{#if updated}}text-green-500{{else}}text-gray-200{{/if}}{{else}}text-gray-200{{/if}}\"\n        viewBox=\"0 0 20 20\" fill=\"currentColor\">\n        <path fill-rule=\"evenodd\"\n          d=\"M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z\"\n          clip-rule=\"evenodd\" />\n      </svg>\n    </span>\n    <label class=\"block text-sm\" for=\"name\">{{label}}</label>\n  </div>\n  <input id=\"{{id}}\" name=\"{{id}}\" type=\"{{type}}\" value=\"{{text}}\" {{#if require}}required{{/if}}\n    placeholder=\"{{placeholder}}\" aria-label=\"Name\"\n    class=\"w-full px-5 py-1 text-gray-700 {{#if valid}}bg-gray-200{{else}}bg-red-200{{/if}} rounded\">\n  {{#unless valid}}\n  <div class=\"flex items-start mb-1\">\n    <label class=\"block text-sm text-red-300\" for=\"cus_email\">{{validateMessage}}</label>\n  </div>\n  {{/unless}}\n</div>\n";
 exports.default = window.Handlebars.compile(template);
 },{}],"src/views/text-field.ts":[function(require,module,exports) {
 "use strict";
@@ -391,7 +391,13 @@ function () {
 
     this.update = function () {
       var container = document.querySelector("#field-".concat(_this.data.id));
-      var docFrag = document.createElement('div');
+      var docFrag = document.createElement('div'); // docFrag DOM 객체가 한번의 명령어로 구성이 완료되어
+      // target container의 내용을 수정하고 웹 화면이 재구성(reflow)가능한 경우가 아니라면
+      // reflow의 발생을 억제시키므로 성능상의 이득이 있다.
+      // 하지만 이 경우에는 docFrag을 사용하지 않아도 Reflow는 한번 발생하므로 상관 없어보인다.
+      // 만약 assign 연산 중 우변의 값을 evaluation이 시작되는 순간부터 화면 렌더링이 멈추거나 한다면
+      // 문제가 있겠지만 그렇지는 않아보인다.
+
       docFrag.innerHTML = _this.template(_this.buildData());
       container.innerHTML = docFrag.children[0].innerHTML;
     };
@@ -876,7 +882,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "11307" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "6663" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

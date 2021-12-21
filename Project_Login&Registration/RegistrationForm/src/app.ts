@@ -21,24 +21,39 @@ export default class App {
   }
 
   private initialize = () => {
-    const nameField = new TextField('#required-fields', { 
-      id: 'name', label: '이름', type: 'text', placeholder: '이름을 입력해주세요', require: true,
+    const nameField = new TextField('#required-fields', {
+      id: 'name',
+      label: '이름',
+      type: 'text',
+      placeholder: '이름을 입력해주세요',
+      require: true,
     });
 
-    const idField = new TextField('#required-fields', { 
-      id: 'id', label: '아이디', type: 'text', placeholder: '아이디를 입력해주세요', require: true,
+    const idField = new TextField('#required-fields', {
+      id: 'id',
+      label: '아이디',
+      type: 'text',
+      placeholder: '아이디를 입력해주세요',
+      require: true,
     });
 
-    const emailField = new TextField('#required-fields', { 
-      id: 'email', label: '이메일', type: 'email', placeholder: '이메일을 입력해주세요', require: true,
+    const emailField = new TextField('#required-fields', {
+      id: 'email',
+      label: '이메일',
+      type: 'email',
+      placeholder: '이메일을 입력해주세요',
+      require: true,
     });
-    
-    const passwordField = new PasswordField('#required-fields', { 
-      id: 'password', label: '비밀번호', placeholder: '비밀번호를 입력해주세요', 
+
+    const passwordField = new PasswordField('#required-fields', {
+      id: 'password',
+      label: '비밀번호',
+      placeholder: '비밀번호를 입력해주세요',
     });
 
     const addressField = new AddressField('#optional-fields', {
-      id: 'address', label: '배송지 주소',
+      id: 'address',
+      label: '배송지 주소',
     });
 
     idField.addValidateRule(CantContainWhitespace);

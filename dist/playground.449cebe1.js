@@ -118,10 +118,17 @@ parcelRequire = (function (modules, cache, entry, globalName) {
 
   return newRequire;
 })({"playground.js":[function(require,module,exports) {
+var container = document.querySelector('#root');
 var divFragment = document.createElement('div');
 var h1_inside = document.createElement('h1');
+divFragment.append(h1_inside);
+container.appendChild(divFragment);
 h1_inside.innerText = 'hello DOM!';
-console.log();
+h1_inside.innerText = 'innerText is changing in real time!';
+h1_inside.innerText = 'Continue...1';
+h1_inside.innerText = 'Continue...2';
+h1_inside.innerText = 'Continue...3';
+h1_inside.innerText = 'Finished';
 },{}],"../../../../AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
