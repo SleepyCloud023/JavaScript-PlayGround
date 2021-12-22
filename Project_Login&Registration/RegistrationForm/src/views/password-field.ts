@@ -2,6 +2,7 @@ import { nextTick } from '../utils';
 import { ValidateRule } from '../types';
 import template from './password-field.template';
 import { RequireRule } from '../constant';
+import { InputField } from './field';
 
 enum StrongLevel {
   None = 0,
@@ -35,15 +36,13 @@ const DefaultProps: Props = {
   strong: StrongLevel.None,
 };
 
-export default class PasswordField {
-  private template = template;
-  private container: string;
+export default class PasswordField extends InputField {
   private data: Props;
   private updated: boolean = false;
   private validateRules: ValidateRule[] = [];
 
-  constructor(container: string, data: Props) {
-    this.container = container;
+  constructor(container: string, parentContainer: string, data: Props) {
+    super(template, container , parentContainer);
     this.data = { ...DefaultProps, ...data };
 
     if (this.data.require) {
@@ -53,40 +52,28 @@ export default class PasswordField {
     nextTick(this.attachEventHandler);
   }
 
+  public addValidateRule = (rule:ValidateRule) => {
+    this.validateRules.push(rule);
+  }
+  
+  private attachEventHandler = () => {
+    document.querySelector(this.parentContainer)?.addEventListener('change', this.onChange);
+  }
+
   private onChange = (e: Event) => {
     const { value, id } = e.target as HTMLInputElement;
   
     if (id === this.data.id) {
       this.updated = true;
       this.data.text = value;
-      this.update();
+      this.updateElement();
     }
   }
 
-  private attachEventHandler = () => {
-    document.querySelector(this.container)?.addEventListener('change', this.onChange);
-  }
-
-  private buildData = () => { 
-    let strongLevel = -1;
+  protected buildData = () => { 
     const isInvalid: ValidateRule | null = this.validate();
-
-    if (this.data.text!.length > 0) {
-      strongLevel++;
-    }
-
-    if (this.data.text!.length > 12) {
-      strongLevel++;
-    }
-
-    if (/[!@#$%^&*()]/.test(this.data.text!)) {
-      strongLevel++;
-    }
-
-    if (/\d/.test(this.data.text!)) {
-      strongLevel++;
-    }
-
+    const strongLevel = this.getStrongLevel();
+    
     return {
       ...this.data, 
       updated: this.updated,
@@ -108,13 +95,14 @@ export default class PasswordField {
     return (invalidateRules.length > 0) ? invalidateRules[0] : null;
   }
 
-  private update = () => {
-    const container = document.querySelector(`#field-${this.data.id}`) as HTMLElement;
-    const docFrag = document.createElement('div');
+  private getStrongLevel = () => {
+    let strongLevel = -1;
 
-    docFrag.innerHTML = this.template(this.buildData());
-
-    container.innerHTML = docFrag.children[0].innerHTML;
+    if (this.data.text!.length > 0)   strongLevel++;
+    if (this.data.text!.length > 12)  strongLevel++;
+    if (/[!@#$%^&*()]/.test(this.data.text!)) strongLevel++;
+    if (/\d/.test(this.data.text!))   strongLevel++;
+    return strongLevel;
   }
 
   public get name(): string {
@@ -129,20 +117,4 @@ export default class PasswordField {
     return !this.validate();
   }
 
-  public addValidateRule = (rule:ValidateRule) => {
-    this.validateRules.push(rule);
-  }
-
-  public render = (append: boolean = false) => {
-    const container = document.querySelector(this.container) as HTMLElement;
-
-    if (append) {
-      const divFragment = document.createElement('div');
-      divFragment.innerHTML = this.template(this.buildData());
-
-      container.appendChild(divFragment.firstElementChild as HTMLElement);
-    } else {
-      container.innerHTML = this.template(this.buildData());
-    }
-  }
 }

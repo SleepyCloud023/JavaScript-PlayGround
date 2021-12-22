@@ -21,7 +21,7 @@ export default class App {
   }
 
   private initialize = () => {
-    const nameField = new TextField('#required-fields', {
+    const nameField = new TextField('#field-name', '#required-fields', {
       id: 'name',
       label: '이름',
       type: 'text',
@@ -29,7 +29,7 @@ export default class App {
       require: true,
     });
 
-    const idField = new TextField('#required-fields', {
+    const idField = new TextField('#field-id', '#required-fields', {
       id: 'id',
       label: '아이디',
       type: 'text',
@@ -37,7 +37,7 @@ export default class App {
       require: true,
     });
 
-    const emailField = new TextField('#required-fields', {
+    const emailField = new TextField('#field-email', '#required-fields', {
       id: 'email',
       label: '이메일',
       type: 'email',
@@ -45,13 +45,13 @@ export default class App {
       require: true,
     });
 
-    const passwordField = new PasswordField('#required-fields', {
+    const passwordField = new PasswordField('#field-password', '#required-fields', {
       id: 'password',
       label: '비밀번호',
       placeholder: '비밀번호를 입력해주세요',
     });
 
-    const addressField = new AddressField('#optional-fields', {
+    const addressField = new AddressField('#field-address', '#optional-fields', {
       id: 'address',
       label: '배송지 주소',
     });

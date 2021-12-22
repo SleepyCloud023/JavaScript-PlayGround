@@ -2,6 +2,7 @@ import { nextTick } from '../utils';
 import { ValidateRule } from '../types';
 import template from './text-field.template';
 import { RequireRule } from '../constant';
+import {InputField} from './field'
 
 type Props = {
   id: string;
@@ -21,22 +22,24 @@ const DefaultProps: Props = {
   require: false,
 };
 
-export default class TextField {
-  private template = template;
-  private container: string;
+export default class TextField extends InputField{
   private data: Props;
   private updated: boolean = false;
   private validateRules: ValidateRule[] = [];
-
-  constructor(container: string, data: Props) {
-    this.container = container;
+  
+  constructor(Container: string, parentContainer: string, data: Props) {
+    super(template, Container, parentContainer);
     this.data = { ...DefaultProps, ...data };
 
     if (this.data.require) {
       this.addValidateRule(RequireRule);
     }
 
-    nextTick(this.attachEventHandler);
+    nextTick(this.attachHandlerToParent);
+  }
+
+  public addValidateRule = (rule:ValidateRule) => {
+    this.validateRules.push(rule);
   }
 
   private validate = (): ValidateRule | null => {
@@ -48,7 +51,21 @@ export default class TextField {
     return (invalidateRules.length > 0) ? invalidateRules[0] : null;
   }
 
-  private buildData = () => {
+  private attachHandlerToParent = () => {
+    document.querySelector(this.parentContainer)?.addEventListener('change', this.onChange);
+  }
+
+  private onChange = (e: Event) => {
+    const { value, id } = e.target as HTMLInputElement;
+  
+    if (id === this.data.id) {
+      this.updated = true;
+      this.data.text = value; 
+      this.updateElement();
+    }
+  }
+
+  protected buildData = () => {
     const isInvalid: ValidateRule | null = this.validate();
 
     if (this.updated) {
@@ -68,34 +85,6 @@ export default class TextField {
     }
   }
 
-  private onChange = (e: Event) => {
-    const { value, id } = e.target as HTMLInputElement;
-  
-    if (id === this.data.id) {
-      this.updated = true;
-      this.data.text = value;
-      this.update();
-    }
-  }
-
-  private attachEventHandler = () => {
-    document.querySelector(this.container)?.addEventListener('change', this.onChange);
-  }
-
-  private update = () => {
-    const container = document.querySelector(`#field-${this.data.id}`) as HTMLElement;
-    const docFrag = document.createElement('div');
-    // docFrag DOM 객체가 한번의 명령어로 구성이 완료되어
-    // target container의 내용을 수정하고 웹 화면이 재구성(reflow)가능한 경우가 아니라면
-    // reflow의 발생을 억제시키므로 성능상의 이득이 있다.
-    // 하지만 이 경우에는 docFrag을 사용하지 않아도 Reflow는 한번 발생하므로 상관 없어보인다.
-    // 만약 assign 연산 중 우변의 값을 evaluation이 시작되는 순간부터 화면 렌더링이 멈추거나 한다면
-    // 문제가 있겠지만 그렇지는 않아보인다.
-
-    docFrag.innerHTML = this.template(this.buildData());
-    container.innerHTML = docFrag.children[0].innerHTML;
-  }
-
   public get name(): string {
     return this.data.id;
   }
@@ -106,22 +95,5 @@ export default class TextField {
 
   public get isValid(): boolean {
     return !this.validate();
-  }
-
-  public addValidateRule = (rule:ValidateRule) => {
-    this.validateRules.push(rule);
-  }
-
-  public render = (append: boolean = false) => {
-    const container = document.querySelector(this.container) as HTMLElement;
-
-    if (append) {
-      const divFragment = document.createElement('div');
-      divFragment.innerHTML = this.template(this.buildData());
-
-      container.appendChild(divFragment.children[0]);
-    } else {
-      container.innerHTML = this.template(this.buildData());
-    }
   }
 }

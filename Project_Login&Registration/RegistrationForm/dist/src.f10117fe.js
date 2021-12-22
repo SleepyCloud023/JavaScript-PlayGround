@@ -165,8 +165,96 @@ Object.defineProperty(exports, "__esModule", {
 });
 var template = "\n<div id=\"field-{{id}}\">\n\n  <div class=\"mt-2\">\n    <label class=\"block text-sm\" for=\"cus_email\">{{label}}</label>\n    <div class=\"flex items-center\">\n      <input id=\"address1\" name=\"address1\" type=\"text\" value=\"{{displayAddress}}\" placeholder=\"\uC8FC\uC18C\uB97C \uAC80\uC0C9\uD574 \uC8FC\uC138\uC694\" class=\"w-full px-2 py-2 text-gray-700 bg-gray-200 rounded\">\n      <button id=\"search-address\" class=\"bg-gray-300 text-gray-500 px-1 py-1 rounded shadow \" style=\"margin-left: -3rem;\">\n        <svg fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" viewBox=\"0 0 24 24\" class=\"w-6 h-6\"><path d=\"M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z\"></path></svg>\n      </button>\n    </div>\n  </div>\n\n  <div class=\"mt-2\">\n    <label class=\"hidden text-sm block text-gray-600\" for=\"address2\">\uC0C1\uC138 \uC8FC\uC18C</label>\n    <input id=\"address2\" name=\"address2\" type=\"text\" placeholder=\"\uC0C1\uC138 \uC8FC\uC18C\" aria-label=\"Address 2\" class=\"w-full px-2 py-2 text-gray-700 bg-gray-200 rounded\" >\n  </div>\n\n</div>\n";
 exports.default = window.Handlebars.compile(template);
+},{}],"src/views/field.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.InputField = void 0;
+
+var InputField =
+/** @class */
+function () {
+  function InputField(template, container, parentContainer) {
+    var _this = this;
+
+    this.render = function (append) {
+      if (append === void 0) {
+        append = false;
+      }
+
+      var parentElement = document.querySelector(_this.parentContainer);
+
+      var htmlContent = _this.makeHtml();
+
+      if (append) {
+        parentElement.insertAdjacentHTML('beforeend', htmlContent);
+      } else {
+        parentElement.innerHTML = htmlContent;
+      }
+    }; // 상속받은 클래스의 EventHandler 콜백 함수 내부에서
+    // InputField에 해당하는 HTMLElement를 업데이트하는데 사용
+
+
+    this.updateElement = function () {
+      var targetElement = document.querySelector(_this.container);
+      targetElement.innerHTML = _this.makeHtml();
+    };
+
+    this.template = template;
+    this.container = container;
+    this.parentContainer = parentContainer;
+  }
+
+  InputField.prototype.makeHtml = function () {
+    return this.template(this.buildData());
+  };
+
+  return InputField;
+}();
+
+exports.InputField = InputField;
+},{}],"src/utils/index.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.nextTick = void 0;
+
+var nextTick = function (fn) {
+  return setTimeout(fn, 16);
+};
+
+exports.nextTick = nextTick;
 },{}],"src/views/address-field.ts":[function(require,module,exports) {
 "use strict";
+
+var __extends = this && this.__extends || function () {
+  var extendStatics = function (d, b) {
+    extendStatics = Object.setPrototypeOf || {
+      __proto__: []
+    } instanceof Array && function (d, b) {
+      d.__proto__ = b;
+    } || function (d, b) {
+      for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p];
+    };
+
+    return extendStatics(d, b);
+  };
+
+  return function (d, b) {
+    if (typeof b !== "function" && b !== null) throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+    extendStatics(d, b);
+
+    function __() {
+      this.constructor = d;
+    }
+
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+  };
+}();
 
 var __assign = this && this.__assign || function () {
   __assign = Object.assign || function (t) {
@@ -194,6 +282,10 @@ Object.defineProperty(exports, "__esModule", {
 
 var address_field_template_1 = __importDefault(require("./address-field.template"));
 
+var field_1 = require("./field");
+
+var utils_1 = require("../utils");
+
 var DefaultProps = {
   id: '',
   label: 'label',
@@ -202,43 +294,35 @@ var DefaultProps = {
 
 var AddressField =
 /** @class */
-function () {
-  function AddressField(container, data) {
-    var _this = this;
+function (_super) {
+  __extends(AddressField, _super);
 
-    this.template = address_field_template_1.default;
+  function AddressField(container, parentContainer, data) {
+    var _this = _super.call(this, address_field_template_1.default, container, parentContainer) || this;
 
-    this.render = function (append) {
-      var _a;
-
-      if (append === void 0) {
-        append = false;
-      }
-
-      var container = document.querySelector(_this.container);
-
-      if (append) {
-        var divFragment = document.createElement('div');
-        divFragment.innerHTML = _this.template(__assign({}, _this.data));
-        container.appendChild(divFragment.firstElementChild);
-      } else {
-        container.innerHTML = _this.template(__assign({}, _this.data));
-      }
-
-      (_a = container.querySelector("#search-address")) === null || _a === void 0 ? void 0 : _a.addEventListener('click', function () {
+    _this.attachHandlerToSearchButton = function () {
+      var addressElement = document.querySelector(_this.container);
+      var searchButton = addressElement === null || addressElement === void 0 ? void 0 : addressElement.querySelector('#search-address');
+      var upperAddress = addressElement === null || addressElement === void 0 ? void 0 : addressElement.querySelector('#address1');
+      searchButton === null || searchButton === void 0 ? void 0 : searchButton.addEventListener('click', function () {
         new window.daum.Postcode({
           oncomplete: function (data) {
             _this.address1 = data.roadAddress;
             _this.zipcode = data.sigunguCode;
-            container.querySelector('#address1').value = "(".concat(_this.zipcode, ") ").concat(_this.address1);
+            upperAddress.value = "(".concat(_this.zipcode, ") ").concat(_this.address1);
           }
         }).open();
       });
     };
 
-    this.container = container;
-    this.data = __assign(__assign({}, DefaultProps), data);
+    _this.data = __assign(__assign({}, DefaultProps), data);
+    (0, utils_1.nextTick)(_this.attachHandlerToSearchButton);
+    return _this;
   }
+
+  AddressField.prototype.buildData = function () {
+    return this.data;
+  };
 
   Object.defineProperty(AddressField.prototype, "isValid", {
     get: function () {
@@ -266,23 +350,10 @@ function () {
     configurable: true
   });
   return AddressField;
-}();
+}(field_1.InputField);
 
 exports.default = AddressField;
-},{"./address-field.template":"src/views/address-field.template.ts"}],"src/utils/index.ts":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.nextTick = void 0;
-
-var nextTick = function (fn) {
-  return setTimeout(fn, 16);
-};
-
-exports.nextTick = nextTick;
-},{}],"src/views/text-field.template.ts":[function(require,module,exports) {
+},{"./address-field.template":"src/views/address-field.template.ts","./field":"src/views/field.ts","../utils":"src/utils/index.ts"}],"src/views/text-field.template.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -292,6 +363,31 @@ var template = "\n<div id=\"field-{{id}}\" class=\"mt-4\">\n  <div class=\"flex 
 exports.default = window.Handlebars.compile(template);
 },{}],"src/views/text-field.ts":[function(require,module,exports) {
 "use strict";
+
+var __extends = this && this.__extends || function () {
+  var extendStatics = function (d, b) {
+    extendStatics = Object.setPrototypeOf || {
+      __proto__: []
+    } instanceof Array && function (d, b) {
+      d.__proto__ = b;
+    } || function (d, b) {
+      for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p];
+    };
+
+    return extendStatics(d, b);
+  };
+
+  return function (d, b) {
+    if (typeof b !== "function" && b !== null) throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+    extendStatics(d, b);
+
+    function __() {
+      this.constructor = d;
+    }
+
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+  };
+}();
 
 var __assign = this && this.__assign || function () {
   __assign = Object.assign || function (t) {
@@ -323,6 +419,8 @@ var text_field_template_1 = __importDefault(require("./text-field.template"));
 
 var constant_1 = require("../constant");
 
+var field_1 = require("./field");
+
 var DefaultProps = {
   id: '',
   text: '',
@@ -334,15 +432,20 @@ var DefaultProps = {
 
 var TextField =
 /** @class */
-function () {
-  function TextField(container, data) {
-    var _this = this;
+function (_super) {
+  __extends(TextField, _super);
 
-    this.template = text_field_template_1.default;
-    this.updated = false;
-    this.validateRules = [];
+  function TextField(Container, parentContainer, data) {
+    var _this = _super.call(this, text_field_template_1.default, Container, parentContainer) || this;
 
-    this.validate = function () {
+    _this.updated = false;
+    _this.validateRules = [];
+
+    _this.addValidateRule = function (rule) {
+      _this.validateRules.push(rule);
+    };
+
+    _this.validate = function () {
       var target = _this.data.text ? _this.data.text.trim() : '';
 
       var invalidateRules = _this.validateRules.filter(function (validateRule) {
@@ -352,7 +455,26 @@ function () {
       return invalidateRules.length > 0 ? invalidateRules[0] : null;
     };
 
-    this.buildData = function () {
+    _this.attachHandlerToParent = function () {
+      var _a;
+
+      (_a = document.querySelector(_this.parentContainer)) === null || _a === void 0 ? void 0 : _a.addEventListener('change', _this.onChange);
+    };
+
+    _this.onChange = function (e) {
+      var _a = e.target,
+          value = _a.value,
+          id = _a.id;
+
+      if (id === _this.data.id) {
+        _this.updated = true;
+        _this.data.text = value;
+
+        _this.updateElement();
+      }
+    };
+
+    _this.buildData = function () {
       var isInvalid = _this.validate();
 
       if (_this.updated) {
@@ -370,66 +492,14 @@ function () {
       }
     };
 
-    this.onChange = function (e) {
-      var _a = e.target,
-          value = _a.value,
-          id = _a.id;
+    _this.data = __assign(__assign({}, DefaultProps), data);
 
-      if (id === _this.data.id) {
-        _this.updated = true;
-        _this.data.text = value;
-
-        _this.update();
-      }
-    };
-
-    this.attachEventHandler = function () {
-      var _a;
-
-      (_a = document.querySelector(_this.container)) === null || _a === void 0 ? void 0 : _a.addEventListener('change', _this.onChange);
-    };
-
-    this.update = function () {
-      var container = document.querySelector("#field-".concat(_this.data.id));
-      var docFrag = document.createElement('div'); // docFrag DOM 객체가 한번의 명령어로 구성이 완료되어
-      // target container의 내용을 수정하고 웹 화면이 재구성(reflow)가능한 경우가 아니라면
-      // reflow의 발생을 억제시키므로 성능상의 이득이 있다.
-      // 하지만 이 경우에는 docFrag을 사용하지 않아도 Reflow는 한번 발생하므로 상관 없어보인다.
-      // 만약 assign 연산 중 우변의 값을 evaluation이 시작되는 순간부터 화면 렌더링이 멈추거나 한다면
-      // 문제가 있겠지만 그렇지는 않아보인다.
-
-      docFrag.innerHTML = _this.template(_this.buildData());
-      container.innerHTML = docFrag.children[0].innerHTML;
-    };
-
-    this.addValidateRule = function (rule) {
-      _this.validateRules.push(rule);
-    };
-
-    this.render = function (append) {
-      if (append === void 0) {
-        append = false;
-      }
-
-      var container = document.querySelector(_this.container);
-
-      if (append) {
-        var divFragment = document.createElement('div');
-        divFragment.innerHTML = _this.template(_this.buildData());
-        container.appendChild(divFragment.children[0]);
-      } else {
-        container.innerHTML = _this.template(_this.buildData());
-      }
-    };
-
-    this.container = container;
-    this.data = __assign(__assign({}, DefaultProps), data);
-
-    if (this.data.require) {
-      this.addValidateRule(constant_1.RequireRule);
+    if (_this.data.require) {
+      _this.addValidateRule(constant_1.RequireRule);
     }
 
-    (0, utils_1.nextTick)(this.attachEventHandler);
+    (0, utils_1.nextTick)(_this.attachHandlerToParent);
+    return _this;
   }
 
   Object.defineProperty(TextField.prototype, "name", {
@@ -454,10 +524,10 @@ function () {
     configurable: true
   });
   return TextField;
-}();
+}(field_1.InputField);
 
 exports.default = TextField;
-},{"../utils":"src/utils/index.ts","./text-field.template":"src/views/text-field.template.ts","../constant":"src/constant.ts"}],"src/views/password-field.template.ts":[function(require,module,exports) {
+},{"../utils":"src/utils/index.ts","./text-field.template":"src/views/text-field.template.ts","../constant":"src/constant.ts","./field":"src/views/field.ts"}],"src/views/password-field.template.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -467,6 +537,31 @@ var template = "\n<div id=\"field-{{id}}\">\n  <div class=\"mt-4\">\n    <div cl
 exports.default = window.Handlebars.compile(template);
 },{}],"src/views/password-field.ts":[function(require,module,exports) {
 "use strict";
+
+var __extends = this && this.__extends || function () {
+  var extendStatics = function (d, b) {
+    extendStatics = Object.setPrototypeOf || {
+      __proto__: []
+    } instanceof Array && function (d, b) {
+      d.__proto__ = b;
+    } || function (d, b) {
+      for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p];
+    };
+
+    return extendStatics(d, b);
+  };
+
+  return function (d, b) {
+    if (typeof b !== "function" && b !== null) throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+    extendStatics(d, b);
+
+    function __() {
+      this.constructor = d;
+    }
+
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+  };
+}();
 
 var __assign = this && this.__assign || function () {
   __assign = Object.assign || function (t) {
@@ -498,6 +593,8 @@ var password_field_template_1 = __importDefault(require("./password-field.templa
 
 var constant_1 = require("../constant");
 
+var field_1 = require("./field");
+
 var StrongLevel;
 
 (function (StrongLevel) {
@@ -519,15 +616,26 @@ var DefaultProps = {
 
 var PasswordField =
 /** @class */
-function () {
-  function PasswordField(container, data) {
-    var _this = this;
+function (_super) {
+  __extends(PasswordField, _super);
 
-    this.template = password_field_template_1.default;
-    this.updated = false;
-    this.validateRules = [];
+  function PasswordField(container, parentContainer, data) {
+    var _this = _super.call(this, password_field_template_1.default, container, parentContainer) || this;
 
-    this.onChange = function (e) {
+    _this.updated = false;
+    _this.validateRules = [];
+
+    _this.addValidateRule = function (rule) {
+      _this.validateRules.push(rule);
+    };
+
+    _this.attachEventHandler = function () {
+      var _a;
+
+      (_a = document.querySelector(_this.parentContainer)) === null || _a === void 0 ? void 0 : _a.addEventListener('change', _this.onChange);
+    };
+
+    _this.onChange = function (e) {
       var _a = e.target,
           value = _a.value,
           id = _a.id;
@@ -536,36 +644,14 @@ function () {
         _this.updated = true;
         _this.data.text = value;
 
-        _this.update();
+        _this.updateElement();
       }
     };
 
-    this.attachEventHandler = function () {
-      var _a;
-
-      (_a = document.querySelector(_this.container)) === null || _a === void 0 ? void 0 : _a.addEventListener('change', _this.onChange);
-    };
-
-    this.buildData = function () {
-      var strongLevel = -1;
-
+    _this.buildData = function () {
       var isInvalid = _this.validate();
 
-      if (_this.data.text.length > 0) {
-        strongLevel++;
-      }
-
-      if (_this.data.text.length > 12) {
-        strongLevel++;
-      }
-
-      if (/[!@#$%^&*()]/.test(_this.data.text)) {
-        strongLevel++;
-      }
-
-      if (/\d/.test(_this.data.text)) {
-        strongLevel++;
-      }
+      var strongLevel = _this.getStrongLevel();
 
       return __assign(__assign({}, _this.data), {
         updated: _this.updated,
@@ -578,7 +664,7 @@ function () {
       });
     };
 
-    this.validate = function () {
+    _this.validate = function () {
       var target = _this.data.text ? _this.data.text.trim() : '';
 
       var invalidateRules = _this.validateRules.filter(function (validateRule) {
@@ -588,41 +674,23 @@ function () {
       return invalidateRules.length > 0 ? invalidateRules[0] : null;
     };
 
-    this.update = function () {
-      var container = document.querySelector("#field-".concat(_this.data.id));
-      var docFrag = document.createElement('div');
-      docFrag.innerHTML = _this.template(_this.buildData());
-      container.innerHTML = docFrag.children[0].innerHTML;
+    _this.getStrongLevel = function () {
+      var strongLevel = -1;
+      if (_this.data.text.length > 0) strongLevel++;
+      if (_this.data.text.length > 12) strongLevel++;
+      if (/[!@#$%^&*()]/.test(_this.data.text)) strongLevel++;
+      if (/\d/.test(_this.data.text)) strongLevel++;
+      return strongLevel;
     };
 
-    this.addValidateRule = function (rule) {
-      _this.validateRules.push(rule);
-    };
+    _this.data = __assign(__assign({}, DefaultProps), data);
 
-    this.render = function (append) {
-      if (append === void 0) {
-        append = false;
-      }
-
-      var container = document.querySelector(_this.container);
-
-      if (append) {
-        var divFragment = document.createElement('div');
-        divFragment.innerHTML = _this.template(_this.buildData());
-        container.appendChild(divFragment.firstElementChild);
-      } else {
-        container.innerHTML = _this.template(_this.buildData());
-      }
-    };
-
-    this.container = container;
-    this.data = __assign(__assign({}, DefaultProps), data);
-
-    if (this.data.require) {
-      this.addValidateRule(constant_1.RequireRule);
+    if (_this.data.require) {
+      _this.addValidateRule(constant_1.RequireRule);
     }
 
-    (0, utils_1.nextTick)(this.attachEventHandler);
+    (0, utils_1.nextTick)(_this.attachEventHandler);
+    return _this;
   }
 
   Object.defineProperty(PasswordField.prototype, "name", {
@@ -647,10 +715,10 @@ function () {
     configurable: true
   });
   return PasswordField;
-}();
+}(field_1.InputField);
 
 exports.default = PasswordField;
-},{"../utils":"src/utils/index.ts","./password-field.template":"src/views/password-field.template.ts","../constant":"src/constant.ts"}],"src/views/index.ts":[function(require,module,exports) {
+},{"../utils":"src/utils/index.ts","./password-field.template":"src/views/password-field.template.ts","../constant":"src/constant.ts","./field":"src/views/field.ts"}],"src/views/index.ts":[function(require,module,exports) {
 "use strict";
 
 var __importDefault = this && this.__importDefault || function (mod) {
@@ -737,33 +805,33 @@ function () {
     this.active = false;
 
     this.initialize = function () {
-      var nameField = new views_1.TextField('#required-fields', {
+      var nameField = new views_1.TextField('#field-name', '#required-fields', {
         id: 'name',
         label: '이름',
         type: 'text',
         placeholder: '이름을 입력해주세요',
         require: true
       });
-      var idField = new views_1.TextField('#required-fields', {
+      var idField = new views_1.TextField('#field-id', '#required-fields', {
         id: 'id',
         label: '아이디',
         type: 'text',
         placeholder: '아이디를 입력해주세요',
         require: true
       });
-      var emailField = new views_1.TextField('#required-fields', {
+      var emailField = new views_1.TextField('#field-email', '#required-fields', {
         id: 'email',
         label: '이메일',
         type: 'email',
         placeholder: '이메일을 입력해주세요',
         require: true
       });
-      var passwordField = new views_1.PasswordField('#required-fields', {
+      var passwordField = new views_1.PasswordField('#field-password', '#required-fields', {
         id: 'password',
         label: '비밀번호',
         placeholder: '비밀번호를 입력해주세요'
       });
-      var addressField = new views_1.AddressField('#optional-fields', {
+      var addressField = new views_1.AddressField('#field-address', '#optional-fields', {
         id: 'address',
         label: '배송지 주소'
       });
@@ -882,7 +950,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "6663" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "3289" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
