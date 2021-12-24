@@ -1,6 +1,6 @@
 import template from './address-field.template';
 import { AnyObject, DaumAddress } from '../types';
-import { InputField } from './field';
+import { CoreField } from './core-field';
 import { nextTick } from '../utils';
 
 type Props = {
@@ -15,7 +15,7 @@ const DefaultProps: Props = {
   require: false,
 };
 
-export default class AddressField extends InputField {
+export default class AddressField extends CoreField {
   private data: Props;
 
   private address1?: string;

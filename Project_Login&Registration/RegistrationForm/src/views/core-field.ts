@@ -1,15 +1,26 @@
-import { AnyObject } from "../types";
+import { AnyObject, ValidateRule } from "../types";
+import { Validator } from "../utils";
 
-export abstract class InputField {
-    protected template: (data: AnyObject) => string;
+export abstract class CoreField {
+    private template: (data: AnyObject) => string;
     protected container: string;
     protected parentContainer: string;
+    private validator: Validator;
 
     constructor(template: (data: AnyObject) => string, container: string,
                 parentContainer:string) {
         this.template = template;
         this.container = container;
         this.parentContainer = parentContainer;
+        this.validator = new Validator();
+    }
+
+    public addValidateRule(rule: ValidateRule) {
+        this.validator.addValidateRule(rule);
+    }
+
+    protected validate(targetText: string | undefined){
+        return this.validator.validate(targetText);
     }
 
     public render = (append: boolean = false) => {

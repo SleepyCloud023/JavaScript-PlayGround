@@ -1,8 +1,8 @@
-import { nextTick } from '../utils';
+import { nextTick, Validator } from '../utils';
 import { ValidateRule } from '../types';
 import template from './password-field.template';
 import { RequireRule } from '../constant';
-import { InputField } from './field';
+import { CoreField } from './core-field';
 
 enum StrongLevel {
   None = 0,
@@ -36,10 +36,9 @@ const DefaultProps: Props = {
   strong: StrongLevel.None,
 };
 
-export default class PasswordField extends InputField {
+export default class PasswordField extends CoreField {
   private data: Props;
   private updated: boolean = false;
-  private validateRules: ValidateRule[] = [];
 
   constructor(container: string, parentContainer: string, data: Props) {
     super(template, container , parentContainer);
@@ -50,10 +49,6 @@ export default class PasswordField extends InputField {
     }
 
     nextTick(this.attachEventHandler);
-  }
-
-  public addValidateRule = (rule:ValidateRule) => {
-    this.validateRules.push(rule);
   }
   
   private attachEventHandler = () => {
@@ -71,7 +66,8 @@ export default class PasswordField extends InputField {
   }
 
   protected buildData = () => { 
-    const isInvalid: ValidateRule | null = this.validate();
+    const targetText = this.data.text;
+    const isInvalid: ValidateRule | null = this.validate(targetText);
     const strongLevel = this.getStrongLevel();
     
     return {
@@ -84,15 +80,6 @@ export default class PasswordField extends InputField {
       strongLevel2: strongLevel >= 3,
       strongLevel3: strongLevel >= 4,
     };
-  }
-
-  private validate = (): ValidateRule | null => {
-    const target = this.data.text ? this.data.text.trim() : '';
-
-    const invalidateRules = this.validateRules
-      .filter(validateRule => validateRule.rule.test(target) !== validateRule.match);
-
-    return (invalidateRules.length > 0) ? invalidateRules[0] : null;
   }
 
   private getStrongLevel = () => {
@@ -114,7 +101,8 @@ export default class PasswordField extends InputField {
   }
 
   public get isValid(): boolean {
-    return !this.validate();
+    const targetText = this.data.text;
+    return !this.validate(targetText);
   }
 
 }

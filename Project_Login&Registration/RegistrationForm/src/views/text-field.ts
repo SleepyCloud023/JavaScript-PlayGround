@@ -2,7 +2,8 @@ import { nextTick } from '../utils';
 import { ValidateRule } from '../types';
 import template from './text-field.template';
 import { RequireRule } from '../constant';
-import {InputField} from './field'
+import {CoreField} from './core-field'
+import {Validator} from '../utils';
 
 type Props = {
   id: string;
@@ -22,10 +23,9 @@ const DefaultProps: Props = {
   require: false,
 };
 
-export default class TextField extends InputField{
+export default class TextField extends CoreField{
   private data: Props;
   private updated: boolean = false;
-  private validateRules: ValidateRule[] = [];
   
   constructor(Container: string, parentContainer: string, data: Props) {
     super(template, Container, parentContainer);
@@ -36,19 +36,6 @@ export default class TextField extends InputField{
     }
 
     nextTick(this.attachHandlerToParent);
-  }
-
-  public addValidateRule = (rule:ValidateRule) => {
-    this.validateRules.push(rule);
-  }
-
-  private validate = (): ValidateRule | null => {
-    const target = this.data.text ? this.data.text.trim() : '';
-
-    const invalidateRules = this.validateRules
-      .filter(validateRule => validateRule.rule.test(target) !== validateRule.match);
-
-    return (invalidateRules.length > 0) ? invalidateRules[0] : null;
   }
 
   private attachHandlerToParent = () => {
@@ -66,7 +53,8 @@ export default class TextField extends InputField{
   }
 
   protected buildData = () => {
-    const isInvalid: ValidateRule | null = this.validate();
+    const targetText = this.data.text;
+    const isInvalid: ValidateRule | null = this.validate(targetText);
 
     if (this.updated) {
       return {
@@ -94,6 +82,7 @@ export default class TextField extends InputField{
   }
 
   public get isValid(): boolean {
-    return !this.validate();
+    const targetText = this.data.text;
+    return !this.validate(targetText);
   }
 }
